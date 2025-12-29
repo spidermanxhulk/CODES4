@@ -528,7 +528,7 @@ fun ECFloatingTextEffect(floatingText: ECFloatingText, onFinished: () -> Unit) {
 // ==================== DIFFICULTY INDICATOR ====================
 
 @Composable
-fun BKDifficultyCenterIndicator(
+fun ECDifficultyCenterIndicator(
     text: String,
     visible: Boolean,
     modifier: Modifier = Modifier
@@ -618,12 +618,6 @@ fun ECTopBar(
     elapsedSeconds: Int,
     modifier: Modifier = Modifier
 ) {
-    val pointsAnimated by animateIntAsState(
-        targetValue = points,
-        animationSpec = tween(300, easing = EaseOutCubic),
-        label = "pointsAnim"
-    )
-
     val progress = (elapsedSeconds.toFloat() / targetDurationSeconds.toFloat()).coerceIn(0f, 1f)
 
     Box(
@@ -1028,7 +1022,7 @@ fun ECInGameSettingsDialog(
 // ==================== GAME OVER SCREEN ====================
 
 @Composable
-fun BKGameOverScreen(
+fun ECGameOverScreen(
     isSuccess: Boolean,
     pointsBase: Int,
     targetDurationSeconds: Int,
@@ -1153,8 +1147,8 @@ fun BKGameOverScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement. SpaceBetween
                     ) {
-                        BKStatItem(label = "Time", value = formatTimeEC(elapsedSeconds), icon = "⏱️")
-                        BKStatItem(label = "Bubbles", value = "${finalPoints / 10}", icon = "🫧")
+                        ECStatItem(label = "Time", value = formatTimeEC(elapsedSeconds), icon = "⏱️")
+                        ECStatItem(label = "Bubbles", value = "${finalPoints / 10}", icon = "🫧")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1165,8 +1159,8 @@ fun BKGameOverScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        BKRewardItem(icon = R.drawable.coin, value = "+$coinsEarned", label = "Coins")
-                        BKRewardItem(icon = R.drawable. gemgame, value = "+$sessionLuxEarned", label = "Lux")
+                        ECRewardItem(icon = R.drawable.coin, value = "+$coinsEarned", label = "Coins")
+                        ECRewardItem(icon = R.drawable. gemgame, value = "+$sessionLuxEarned", label = "Lux")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -1220,7 +1214,7 @@ fun BKGameOverScreen(
 }
 
 @Composable
-fun BKStatItem(label: String, value:  String, icon: String) {
+fun ECStatItem(label: String, value:  String, icon: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         ECOutlinedText(text = icon, fontSize = 20.sp, color = Color.White)
         ECOutlinedText(
@@ -1238,7 +1232,7 @@ fun BKStatItem(label: String, value:  String, icon: String) {
 }
 
 @Composable
-fun BKRewardItem(icon:  Int, value: String, label: String) {
+fun ECRewardItem(icon:  Int, value: String, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(id = icon),
@@ -1490,8 +1484,8 @@ fun EnduranceChampionScreen(onExit: () -> Unit) {
                 break
             }
 
-            // Increase difficulty every 30 seconds (but only if not yet succeeded)
-            if (elapsedSeconds % 30 == 0 && elapsedSeconds < targetDurationSeconds) {
+            // Increase difficulty every 30 seconds
+            if (elapsedSeconds % 30 == 0) {
                 val nextMultiplier = difficultyMultiplier * 1.25
                 difficultyMultiplier = if (nextMultiplier > maxAllowedMultiplier) maxAllowedMultiplier else nextMultiplier
             }
@@ -1749,7 +1743,7 @@ fun EnduranceChampionScreen(onExit: () -> Unit) {
 
             // Difficulty indicator
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                BKDifficultyCenterIndicator(text = diffText, visible = showDiffIndicator, modifier = Modifier. padding(top = 180.dp))
+                ECDifficultyCenterIndicator(text = diffText, visible = showDiffIndicator, modifier = Modifier. padding(top = 180.dp))
             }
 
             // Game Over Screen
@@ -1768,7 +1762,7 @@ fun EnduranceChampionScreen(onExit: () -> Unit) {
                     }
                 }
 
-                BKGameOverScreen(
+                ECGameOverScreen(
                     isSuccess = success,
                     pointsBase = finalPoints,
                     targetDurationSeconds = targetDurationSeconds,
