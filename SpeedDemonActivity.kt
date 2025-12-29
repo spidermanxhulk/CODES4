@@ -528,7 +528,7 @@ fun SDFloatingTextEffect(floatingText: SDFloatingText, onFinished: () -> Unit) {
 // ==================== DIFFICULTY INDICATOR ====================
 
 @Composable
-fun BKDifficultyCenterIndicator(
+fun SDDifficultyCenterIndicator(
     text: String,
     visible: Boolean,
     modifier: Modifier = Modifier
@@ -1028,7 +1028,7 @@ fun SDInGameSettingsDialog(
 // ==================== GAME OVER SCREEN ====================
 
 @Composable
-fun BKGameOverScreen(
+fun SDGameOverScreen(
     isSuccess: Boolean,
     pointsBase: Int,
     targetScore: Int,
@@ -1038,9 +1038,8 @@ fun BKGameOverScreen(
     onPlayAgain: () -> Unit,
     onExit: () -> Unit
 ) {
-    val finalPoints = pointsBase
-    val coinsEarned = finalPoints / 5
-    val isNewRecord = finalPoints > storedRecord
+    val coinsEarned = pointsBase / 5
+    val isNewRecord = pointsBase > storedRecord
 
     val overlayAlpha = remember { Animatable(0f) }
     val cardScale = remember { Animatable(0.8f) }
@@ -1086,7 +1085,7 @@ fun BKGameOverScreen(
 
             Spacer(modifier = Modifier. height(8.dp))
 
-            if (isNewRecord && finalPoints > 0) {
+            if (isNewRecord && pointsBase > 0) {
                 SDAnimatedOutlinedText(
                     text = "🏆 NEW RECORD! 🏆",
                     fontSize = 24.sp,
@@ -1133,7 +1132,7 @@ fun BKGameOverScreen(
                                 color = Color. White. copy(alpha = 0.7f)
                             )
                             SDAnimatedOutlinedText(
-                                text = "$finalPoints",
+                                text = "$pointsBase",
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isSuccess) Color(0xFFFFD700) else Color(0xFFFF6B00)
@@ -1153,8 +1152,8 @@ fun BKGameOverScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement. SpaceBetween
                     ) {
-                        BKStatItem(label = "Time", value = formatTimeSD(elapsedSeconds), icon = "⏱️")
-                        BKStatItem(label = "Bubbles", value = "${finalPoints / 10}", icon = "🫧")
+                        SDStatItem(label = "Time", value = formatTimeSD(elapsedSeconds), icon = "⏱️")
+                        SDStatItem(label = "Bubbles", value = "${pointsBase / 10}", icon = "🫧")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1165,8 +1164,8 @@ fun BKGameOverScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        BKRewardItem(icon = R.drawable.coin, value = "+$coinsEarned", label = "Coins")
-                        BKRewardItem(icon = R.drawable. gemgame, value = "+$sessionLuxEarned", label = "Lux")
+                        SDRewardItem(icon = R.drawable.coin, value = "+$coinsEarned", label = "Coins")
+                        SDRewardItem(icon = R.drawable. gemgame, value = "+$sessionLuxEarned", label = "Lux")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -1176,7 +1175,7 @@ fun BKGameOverScreen(
                         horizontalArrangement = Arrangement. Center
                     ) {
                         SDOutlinedText(
-                            text = "🏆 Record:  ${maxOf(finalPoints, storedRecord)}",
+                            text = "🏆 Record:  ${maxOf(pointsBase, storedRecord)}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White. copy(alpha = 0.8f)
@@ -1220,7 +1219,7 @@ fun BKGameOverScreen(
 }
 
 @Composable
-fun BKStatItem(label: String, value:  String, icon: String) {
+fun SDStatItem(label: String, value:  String, icon: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         SDOutlinedText(text = icon, fontSize = 20.sp, color = Color.White)
         SDOutlinedText(
@@ -1238,7 +1237,7 @@ fun BKStatItem(label: String, value:  String, icon: String) {
 }
 
 @Composable
-fun BKRewardItem(icon:  Int, value: String, label: String) {
+fun SDRewardItem(icon:  Int, value: String, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(id = icon),
@@ -1745,7 +1744,7 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
 
             // Difficulty indicator
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                BKDifficultyCenterIndicator(text = diffText, visible = showDiffIndicator, modifier = Modifier. padding(top = 180.dp))
+                SDDifficultyCenterIndicator(text = diffText, visible = showDiffIndicator, modifier = Modifier. padding(top = 180.dp))
             }
 
             // Game Over Screen
@@ -1764,7 +1763,7 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
                     }
                 }
 
-                BKGameOverScreen(
+                SDGameOverScreen(
                     isSuccess = success,
                     pointsBase = finalPoints,
                     targetScore = targetScore,
