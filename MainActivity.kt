@@ -904,6 +904,9 @@ fun ChallengesPageContent(
                 1 -> context.startActivity(Intent(context, BubbleKingActivity::class. java))
                 2 -> context.startActivity(Intent(context, PerfectStreakActivity::class. java))
                 3 -> context.startActivity(Intent(context, TimeMasterActivity::class.java))
+                4 -> context.startActivity(Intent(context, ComboMasterActivity::class.java))
+                5 -> context.startActivity(Intent(context, SpeedDemonActivity::class.java))
+                6 -> context.startActivity(Intent(context, EnduranceChampionActivity::class.java))
             }
         }
     }
