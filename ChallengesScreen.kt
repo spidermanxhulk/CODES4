@@ -126,12 +126,12 @@ fun ChallengesList(
             claimed30 = claimed30_1,
             claimed60 = claimed60_1,
             claimed100 = claimed100_1,
-            reward30Drawable = R.drawable.levelbubble,
-            reward30Name = "Lava Bubble",
+            reward30Drawable = R.drawable.goldenbubble,
+            reward30Name = "Fire Bubble",
             reward60Drawable = R.drawable.mainmenu2,
             reward60Name = "MainMenu Style 2",
             finalRewardDrawable = R.drawable.background6,
-            finalRewardName = "Aurora Sky Background",
+            finalRewardName = "Aurora Background",
             ds = ds,
             onPlay = { onChallengeAction(1) }
         )
@@ -153,7 +153,7 @@ fun ChallengesList(
             reward60Drawable = R.drawable.mainmenu3,
             reward60Name = "MainMenu Style 3",
             finalRewardDrawable = R.drawable.background7,
-            finalRewardName = "Ocean Waves Background",
+            finalRewardName = "Ocean Background",
             ds = ds,
             onPlay = { onChallengeAction(2) }
         )
@@ -175,7 +175,7 @@ fun ChallengesList(
             reward60Drawable = R.drawable.mainmenu4,
             reward60Name = "MainMenu Style 4",
             finalRewardDrawable = R.drawable.background8,
-            finalRewardName = "Cyberpunk City Background",
+            finalRewardName = "Cyberpunk Background",
             ds = ds,
             onPlay = { onChallengeAction(3) }
         )
@@ -205,7 +205,7 @@ fun ChallengesList(
         ChallengeCard(
             challengeId = 5,
             title = "Speed Demon",
-            subtitle = "Pop 300 bubbles in 90s",
+            subtitle = "Pop 300 bubbles in 120s",
             icon = "⚡",
             record = recordSpeedDemon,
             target = 300,
@@ -216,8 +216,8 @@ fun ChallengesList(
             claimed100 = claimed100_5,
             reward30Drawable = R.drawable.spacebubble,
             reward30Name = "Galaxy Bubble",
-            reward60Drawable = R.drawable.mainmenu7,
-            reward60Name = "MainMenu Style 7",
+            reward60Drawable = R.drawable.mainmenu5,
+            reward60Name = "MainMenu Style 5",
             finalRewardDrawable = R.drawable.background10,
             finalRewardName = "Desert Background",
             ds = ds,
@@ -237,7 +237,7 @@ fun ChallengesList(
             claimed60 = claimed60_6,
             claimed100 = claimed100_6,
             reward30Drawable = R.drawable.goldenbubble,
-            reward30Name = "Sunset Bubble",
+            reward30Name = "Plasma Bubble",
             reward60Drawable = R.drawable.mainmenu8,
             reward60Name = "MainMenu Style 8",
             finalRewardDrawable = R.drawable.background11,
