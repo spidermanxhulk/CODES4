@@ -1033,8 +1033,8 @@ fun ECGameOverScreen(
     onExit: () -> Unit
 ) {
     val finalPoints = pointsBase
-    val coinsEarned = finalPoints / 5
-    val isNewRecord = finalPoints > storedRecord
+    val coinsEarned = elapsedSeconds / 10
+    val isNewRecord = elapsedSeconds > storedRecord
 
     val overlayAlpha = remember { Animatable(0f) }
     val cardScale = remember { Animatable(0.8f) }
@@ -1121,19 +1121,19 @@ fun ECGameOverScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             ECOutlinedText(
-                                text = "FINAL SCORE",
+                                text = "TIME SURVIVED",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color. White. copy(alpha = 0.7f)
                             )
                             ECAnimatedOutlinedText(
-                                text = "$finalPoints",
+                                text = formatTimeEC(elapsedSeconds),
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isSuccess) Color(0xFFFFD700) else Color(0xFFFF6B00)
                             )
                             ECOutlinedText(
-                                text = "/ $targetDurationSeconds",
+                                text = "/ ${formatTimeEC(targetDurationSeconds)}",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color. White.copy(alpha = 0.5f)
@@ -1147,7 +1147,7 @@ fun ECGameOverScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement. SpaceBetween
                     ) {
-                        ECStatItem(label = "Time", value = formatTimeEC(elapsedSeconds), icon = "⏱️")
+                        ECStatItem(label = "Points", value = "$finalPoints", icon = "💎")
                         ECStatItem(label = "Bubbles", value = "${finalPoints / 10}", icon = "🫧")
                     }
 
@@ -1170,7 +1170,7 @@ fun ECGameOverScreen(
                         horizontalArrangement = Arrangement. Center
                     ) {
                         ECOutlinedText(
-                            text = "🏆 Record:  ${maxOf(finalPoints, storedRecord)}",
+                            text = "🏆 Best Time:  ${formatTimeEC(maxOf(elapsedSeconds, storedRecord))}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White. copy(alpha = 0.8f)
@@ -1751,11 +1751,12 @@ fun EnduranceChampionScreen(onExit: () -> Unit) {
                 cancelAndClearAllSpawnJobs()
 
                 val finalPoints = pointsBase
-                val coinsEarned = finalPoints / 5
+                val finalTime = elapsedSeconds
+                val coinsEarned = finalTime / 10
 
-                LaunchedEffect(finalPoints) {
-                    if (finalPoints > storedRecord) {
-                        dataStore.saveHighScoreEnduranceChampion(finalPoints)
+                LaunchedEffect(finalTime) {
+                    if (finalTime > storedRecord) {
+                        dataStore.saveHighScoreEnduranceChampion(finalTime)
                     }
                     if (coinsEarned > 0) {
                         dataStore.addCoins(coinsEarned)
@@ -1766,7 +1767,7 @@ fun EnduranceChampionScreen(onExit: () -> Unit) {
                     isSuccess = success,
                     pointsBase = finalPoints,
                     targetDurationSeconds = targetDurationSeconds,
-                    elapsedSeconds = elapsedSeconds,
+                    elapsedSeconds = finalTime,
                     sessionLuxEarned = sessionLuxEarned,
                     storedRecord = storedRecord,
                     onPlayAgain = {

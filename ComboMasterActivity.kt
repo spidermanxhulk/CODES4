@@ -613,18 +613,19 @@ fun CMDifficultyCenterIndicator(
 
 @Composable
 fun CMTopBar(
-    points: Int,
+    currentCombo: Int,
+    maxCombo: Int,
     targetScore: Int,
     elapsedSeconds: Int,
     modifier: Modifier = Modifier
 ) {
-    val pointsAnimated by animateIntAsState(
-        targetValue = points,
+    val comboAnimated by animateIntAsState(
+        targetValue = currentCombo,
         animationSpec = tween(300, easing = EaseOutCubic),
-        label = "pointsAnim"
+        label = "comboAnim"
     )
 
-    val progress = (points.toFloat() / targetScore.toFloat()).coerceIn(0f, 1f)
+    val progress = (maxCombo.toFloat() / targetScore.toFloat()).coerceIn(0f, 1f)
 
     Box(
         modifier = modifier
@@ -655,10 +656,17 @@ fun CMTopBar(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         CMOutlinedText(
-                            text = "$pointsAnimated / $targetScore",
+                            text = "Combo: $comboAnimated",
                             fontSize = 18.sp,
                             fontWeight = FontWeight. Bold,
                             color = Color. White
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        CMOutlinedText(
+                            text = "(Max: $maxCombo)",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.White.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -1030,7 +1038,7 @@ fun CMInGameSettingsDialog(
 @Composable
 fun CMGameOverScreen(
     isSuccess: Boolean,
-    pointsBase: Int,
+    maxCombo: Int,
     targetScore: Int,
     elapsedSeconds: Int,
     sessionLuxEarned: Int,
@@ -1038,8 +1046,8 @@ fun CMGameOverScreen(
     onPlayAgain: () -> Unit,
     onExit: () -> Unit
 ) {
-    val coinsEarned = pointsBase / 5
-    val isNewRecord = pointsBase > storedRecord
+    val coinsEarned = maxCombo / 2
+    val isNewRecord = maxCombo > storedRecord
 
     val overlayAlpha = remember { Animatable(0f) }
     val cardScale = remember { Animatable(0.8f) }
@@ -1085,7 +1093,7 @@ fun CMGameOverScreen(
 
             Spacer(modifier = Modifier. height(8.dp))
 
-            if (isNewRecord && pointsBase > 0) {
+            if (isNewRecord && maxCombo > 0) {
                 CMAnimatedOutlinedText(
                     text = "🏆 NEW RECORD! 🏆",
                     fontSize = 24.sp,
@@ -1126,13 +1134,13 @@ fun CMGameOverScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CMOutlinedText(
-                                text = "FINAL SCORE",
+                                text = "MAX COMBO STREAK",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color. White. copy(alpha = 0.7f)
                             )
                             CMAnimatedOutlinedText(
-                                text = "$pointsBase",
+                                text = "$maxCombo",
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isSuccess) Color(0xFFFFD700) else Color(0xFFFF6B00)
@@ -1153,7 +1161,7 @@ fun CMGameOverScreen(
                         horizontalArrangement = Arrangement. SpaceBetween
                     ) {
                         CMStatItem(label = "Time", value = formatTimeCM(elapsedSeconds), icon = "⏱️")
-                        CMStatItem(label = "Bubbles", value = "${pointsBase / 10}", icon = "🫧")
+                        CMStatItem(label = "Max Streak", value = "$maxCombo", icon = "🔥")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1175,7 +1183,7 @@ fun CMGameOverScreen(
                         horizontalArrangement = Arrangement. Center
                     ) {
                         CMOutlinedText(
-                            text = "🏆 Record:  ${maxOf(pointsBase, storedRecord)}",
+                            text = "🏆 Best Combo:  ${maxOf(maxCombo, storedRecord)}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White. copy(alpha = 0.8f)
@@ -1320,6 +1328,8 @@ fun ComboMasterScreen(onExit: () -> Unit) {
     var totalPopped by remember { mutableIntStateOf(0) }
     var pointsBase by remember { mutableIntStateOf(0) }
     var sessionLuxEarned by remember { mutableIntStateOf(0) }
+    var currentCombo by remember { mutableIntStateOf(0) }
+    var maxCombo by remember { mutableIntStateOf(0) }
 
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -1362,6 +1372,8 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                 if (delayMs > 0) delay(delayMs)
                 val stillThere = bubbles.any { it.id == bubble.id }
                 if (stillThere) {
+                    // Bubble expired - reset combo
+                    currentCombo = 0
                     failed = true
                     running = false
                 }
@@ -1587,7 +1599,8 @@ fun ComboMasterScreen(onExit: () -> Unit) {
 
         // Top bar
         CMTopBar(
-            points = pointsBase,
+            currentCombo = currentCombo,
+            maxCombo = maxCombo,
             targetScore = targetScore,
             elapsedSeconds = elapsedSeconds,
             modifier = Modifier.padding(top = 70.dp)
@@ -1639,6 +1652,12 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                                                 totalPopped += 1
                                                 val pointsEarned = 10
                                                 pointsBase += pointsEarned
+                                                
+                                                // Increment combo streak
+                                                currentCombo += 1
+                                                if (currentCombo > maxCombo) {
+                                                    maxCombo = currentCombo
+                                                }
 
                                                 coroutineScope.launch {
                                                     dataStore.addTotalPops(1)
@@ -1657,9 +1676,9 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                                                         id = floatingTextId,
                                                         x = hitBubble.x + hitBubble.size / 4,
                                                         y = hitBubble.y,
-                                                        text = "+$pointsEarned",
-                                                        color = Color(0xFF00FF88),
-                                                        fontSize = 18.sp
+                                                        text = "Combo: $currentCombo",
+                                                        color = Color(0xFFFFD700),
+                                                        fontSize = 20.sp
                                                     )
                                                 )
 
@@ -1692,7 +1711,8 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                                                     floatingTexts.removeAll { it.id == floatingTextId }
                                                 }
 
-                                                if (pointsBase >= targetScore) {
+                                                // Check if reached target combo streak
+                                                if (maxCombo >= targetScore) {
                                                     success = true
                                                     running = false
                                                 }
@@ -1751,12 +1771,12 @@ fun ComboMasterScreen(onExit: () -> Unit) {
             if (success || failed) {
                 cancelAndClearAllSpawnJobs()
 
-                val finalPoints = pointsBase
-                val coinsEarned = finalPoints / 5
+                val finalCombo = maxCombo
+                val coinsEarned = finalCombo / 2
 
-                LaunchedEffect(finalPoints) {
-                    if (finalPoints > storedRecord) {
-                        dataStore.saveHighScoreComboMaster(finalPoints)
+                LaunchedEffect(finalCombo) {
+                    if (finalCombo > storedRecord) {
+                        dataStore.saveHighScoreComboMaster(finalCombo)
                     }
                     if (coinsEarned > 0) {
                         dataStore.addCoins(coinsEarned)
@@ -1765,7 +1785,7 @@ fun ComboMasterScreen(onExit: () -> Unit) {
 
                 CMGameOverScreen(
                     isSuccess = success,
-                    pointsBase = finalPoints,
+                    maxCombo = finalCombo,
                     targetScore = targetScore,
                     elapsedSeconds = elapsedSeconds,
                     sessionLuxEarned = sessionLuxEarned,
@@ -1787,6 +1807,8 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                         totalPopped = 0
                         pointsBase = 0
                         sessionLuxEarned = 0
+                        currentCombo = 0
+                        maxCombo = 0
                         success = false
                         failed = false
                         exitedByUser = false
