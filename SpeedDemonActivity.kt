@@ -613,18 +613,21 @@ fun SDDifficultyCenterIndicator(
 
 @Composable
 fun SDTopBar(
-    points: Int,
+    bubblesPopped: Int,
     targetScore: Int,
     elapsedSeconds: Int,
+    timeLimit: Int,
     modifier: Modifier = Modifier
 ) {
-    val pointsAnimated by animateIntAsState(
-        targetValue = points,
+    val bubblesAnimated by animateIntAsState(
+        targetValue = bubblesPopped,
         animationSpec = tween(300, easing = EaseOutCubic),
-        label = "pointsAnim"
+        label = "bubblesAnim"
     )
 
-    val progress = (points.toFloat() / targetScore.toFloat()).coerceIn(0f, 1f)
+    val progress = (bubblesPopped.toFloat() / targetScore.toFloat()).coerceIn(0f, 1f)
+    val timeRemaining = timeLimit - elapsedSeconds
+    val timeColor = if (timeRemaining <= 10) Color(0xFFFF4444) else Color(0xFF00BFFF)
 
     Box(
         modifier = modifier
@@ -655,7 +658,7 @@ fun SDTopBar(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         SDOutlinedText(
-                            text = "$pointsAnimated / $targetScore",
+                            text = "$bubblesAnimated / $targetScore bubbles",
                             fontSize = 18.sp,
                             fontWeight = FontWeight. Bold,
                             color = Color. White
@@ -677,14 +680,14 @@ fun SDTopBar(
                         SDOutlinedText(
                             text = "⏱️",
                             fontSize = 18.sp,
-                            color = Color(0xFF00BFFF)
+                            color = timeColor
                         )
                         Spacer(modifier = Modifier. width(8.dp))
                         SDOutlinedText(
-                            text = formatTimeSD(elapsedSeconds),
+                            text = "${timeRemaining}s left",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color. White
+                            color = timeColor
                         )
                     }
                 }
@@ -1030,7 +1033,7 @@ fun SDInGameSettingsDialog(
 @Composable
 fun SDGameOverScreen(
     isSuccess: Boolean,
-    pointsBase: Int,
+    bubblesPopped: Int,
     targetScore: Int,
     elapsedSeconds: Int,
     sessionLuxEarned: Int,
@@ -1038,8 +1041,8 @@ fun SDGameOverScreen(
     onPlayAgain: () -> Unit,
     onExit: () -> Unit
 ) {
-    val coinsEarned = pointsBase / 5
-    val isNewRecord = pointsBase > storedRecord
+    val coinsEarned = bubblesPopped / 3
+    val isNewRecord = bubblesPopped > storedRecord
 
     val overlayAlpha = remember { Animatable(0f) }
     val cardScale = remember { Animatable(0.8f) }
@@ -1085,7 +1088,7 @@ fun SDGameOverScreen(
 
             Spacer(modifier = Modifier. height(8.dp))
 
-            if (isNewRecord && pointsBase > 0) {
+            if (isNewRecord && bubblesPopped > 0) {
                 SDAnimatedOutlinedText(
                     text = "🏆 NEW RECORD! 🏆",
                     fontSize = 24.sp,
@@ -1126,19 +1129,19 @@ fun SDGameOverScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             SDOutlinedText(
-                                text = "FINAL SCORE",
+                                text = "BUBBLES POPPED",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color. White. copy(alpha = 0.7f)
                             )
                             SDAnimatedOutlinedText(
-                                text = "$pointsBase",
+                                text = "$bubblesPopped",
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isSuccess) Color(0xFFFFD700) else Color(0xFFFF6B00)
                             )
                             SDOutlinedText(
-                                text = "/ $targetScore",
+                                text = "/ $targetScore bubbles",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color. White.copy(alpha = 0.5f)
@@ -1153,7 +1156,7 @@ fun SDGameOverScreen(
                         horizontalArrangement = Arrangement. SpaceBetween
                     ) {
                         SDStatItem(label = "Time", value = formatTimeSD(elapsedSeconds), icon = "⏱️")
-                        SDStatItem(label = "Bubbles", value = "${pointsBase / 10}", icon = "🫧")
+                        SDStatItem(label = "Speed", value = "${(bubblesPopped.toFloat() / elapsedSeconds.toFloat() * 60).roundToInt()}/min", icon = "⚡")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1175,7 +1178,7 @@ fun SDGameOverScreen(
                         horizontalArrangement = Arrangement. Center
                     ) {
                         SDOutlinedText(
-                            text = "🏆 Record:  ${maxOf(pointsBase, storedRecord)}",
+                            text = "🏆 Best:  ${maxOf(bubblesPopped, storedRecord)} bubbles",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White. copy(alpha = 0.8f)
@@ -1306,7 +1309,8 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
     val baseLifespan = 1500L
     val minSpawn = 150L
     val minLifespan = 300L
-    val targetScore = 300
+    val targetScore = 300  // 300 bubbles
+    val timeLimit = 90  // 90 seconds
 
     var difficultyMultiplier by remember { mutableDoubleStateOf(1.0) }
     var spawnIntervalMs by remember { mutableLongStateOf(baseSpawn) }
@@ -1481,6 +1485,14 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
         while (running && ! success && !failed) {
             delay(1000L)
             elapsedSeconds += 1
+            
+            // Check if time limit exceeded
+            if (elapsedSeconds >= timeLimit && totalPopped < targetScore) {
+                failed = true
+                running = false
+                break
+            }
+            
             if (elapsedSeconds % 30 == 0) {
                 val nextMultiplier = difficultyMultiplier * 1.25
                 difficultyMultiplier = if (nextMultiplier > maxAllowedMultiplier) maxAllowedMultiplier else nextMultiplier
@@ -1587,9 +1599,10 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
 
         // Top bar
         SDTopBar(
-            points = pointsBase,
+            bubblesPopped = totalPopped,
             targetScore = targetScore,
             elapsedSeconds = elapsedSeconds,
+            timeLimit = timeLimit,
             modifier = Modifier.padding(top = 70.dp)
         )
 
@@ -1657,7 +1670,7 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
                                                         id = floatingTextId,
                                                         x = hitBubble.x + hitBubble.size / 4,
                                                         y = hitBubble.y,
-                                                        text = "+$pointsEarned",
+                                                        text = "$totalPopped / $targetScore",
                                                         color = Color(0xFF00FF88),
                                                         fontSize = 18.sp
                                                     )
@@ -1692,7 +1705,8 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
                                                     floatingTexts.removeAll { it.id == floatingTextId }
                                                 }
 
-                                                if (pointsBase >= targetScore) {
+                                                // Check if reached target bubble count
+                                                if (totalPopped >= targetScore) {
                                                     success = true
                                                     running = false
                                                 }
@@ -1751,12 +1765,12 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
             if (success || failed) {
                 cancelAndClearAllSpawnJobs()
 
-                val finalPoints = pointsBase
-                val coinsEarned = finalPoints / 5
+                val finalBubbles = totalPopped
+                val coinsEarned = finalBubbles / 3
 
-                LaunchedEffect(finalPoints) {
-                    if (finalPoints > storedRecord) {
-                        dataStore.saveHighScoreSpeedDemon(finalPoints)
+                LaunchedEffect(finalBubbles) {
+                    if (finalBubbles > storedRecord) {
+                        dataStore.saveHighScoreSpeedDemon(finalBubbles)
                     }
                     if (coinsEarned > 0) {
                         dataStore.addCoins(coinsEarned)
@@ -1765,7 +1779,7 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
 
                 SDGameOverScreen(
                     isSuccess = success,
-                    pointsBase = finalPoints,
+                    bubblesPopped = finalBubbles,
                     targetScore = targetScore,
                     elapsedSeconds = elapsedSeconds,
                     sessionLuxEarned = sessionLuxEarned,
