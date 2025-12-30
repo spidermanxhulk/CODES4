@@ -846,13 +846,13 @@ class DataStoreManager(private val context: Context) {
                 30 -> {
                     // Desbloquear bubble según challengeId
                     val bubbleId = when (challengeId) {
-                        1 -> 6   // Lava Bubble
-                        2 -> 7   // Crystal Bubble
-                        3 -> 8   // Sunset Bubble
-                        4 -> 12  // Ice Bubble
-                        5 -> 15  // Galaxy Bubble
-                        6 -> 18  // Sunset Bubble
-                        else -> 6
+                        1 -> 11  // Fire Bubble (ID 11)
+                        2 -> 17  // Crystal Bubble (ID 17)
+                        3 -> 18  // Sunset Bubble (ID 18)
+                        4 -> 12  // Ice Bubble (ID 12)
+                        5 -> 15  // Galaxy Bubble (ID 15)
+                        6 -> 30  // Plasma Bubble (ID 30)
+                        else -> 11
                     }
                     val bubbleKey = purchaseBubbleKeyForId(bubbleId)
                     prefs[bubbleKey] = 1
@@ -865,7 +865,7 @@ class DataStoreManager(private val context: Context) {
                         2 -> 3
                         3 -> 4
                         4 -> 6
-                        5 -> 7
+                        5 -> 5  // MainMenu Style 5 (changed from 7)
                         6 -> 8
                         else -> 2
                     }
@@ -876,13 +876,13 @@ class DataStoreManager(private val context: Context) {
                 100 -> {
                     // Desbloquear background según challengeId
                     val bgId = when (challengeId) {
-                        1 -> 6
-                        2 -> 7
-                        3 -> 8
-                        4 -> 9
-                        5 -> 10
-                        6 -> 11
-                        else -> 6
+                        1 -> 15  // Aurora Background (changed from 6)
+                        2 -> 13  // Ocean Background (changed from 7)
+                        3 -> 17  // Cyberpunk Background (changed from 8)
+                        4 -> 18  // Underwater Background (changed from 9)
+                        5 -> 19  // Desert Background (changed from 10)
+                        6 -> 20  // Candy Land Background (changed from 11)
+                        else -> 15
                     }
                     val bgKey = purchaseBgKeyForId(bgId)
                     prefs[bgKey] = 1

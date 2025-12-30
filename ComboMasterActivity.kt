@@ -1717,6 +1717,11 @@ fun ComboMasterScreen(onExit: () -> Unit) {
                                                     running = false
                                                 }
                                             }
+                                        } else {
+                                            // Missed click - player clicked but didn't hit a bubble
+                                            // Game ends immediately
+                                            failed = true
+                                            running = false
                                         }
 
                                         change.consume()

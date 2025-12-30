@@ -205,7 +205,7 @@ fun ChallengesList(
         ChallengeCard(
             challengeId = 5,
             title = "Speed Demon",
-            subtitle = "Pop 300 bubbles in 90s",
+            subtitle = "Pop 300 bubbles in 120s",
             icon = "⚡",
             record = recordSpeedDemon,
             target = 300,

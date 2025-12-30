@@ -1310,7 +1310,7 @@ fun SpeedDemonScreen(onExit: () -> Unit) {
     val minSpawn = 150L
     val minLifespan = 300L
     val targetScore = 300  // 300 bubbles
-    val timeLimit = 90  // 90 seconds
+    val timeLimit = 120  // 120 seconds (increased from 90)
 
     var difficultyMultiplier by remember { mutableDoubleStateOf(1.0) }
     var spawnIntervalMs by remember { mutableLongStateOf(baseSpawn) }
